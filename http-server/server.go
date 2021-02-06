@@ -12,9 +12,29 @@ type PlayerStore interface {
 
 type PlayerServer struct {
 	store PlayerStore
+	http.Handler
 }
 
-func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func NewPlayerServer(store PlayerStore) *PlayerServer {
+	p := new(PlayerServer)
+
+	p.store = store
+
+	router := http.NewServeMux()
+
+	router.Handle("/league", http.HandlerFunc(p.leagueHandle))
+	router.Handle("/players", http.HandlerFunc(p.playersHandle))
+
+	p.Handler = router
+
+	return p
+}
+
+func (p *PlayerServer) leagueHandle(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *PlayerServer) playersHandle(w http.ResponseWriter, r *http.Request) {
 	player := r.URL.Path[len("/players/"):]
 	switch r.Method {
 	case http.MethodPost:
