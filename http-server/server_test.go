@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,11 @@ import (
 type StudPlayerStore struct {
 	scores   map[string]int
 	winCalls []string
+}
+
+type Player struct {
+	Name string
+	Wins int
 }
 
 func (s *StudPlayerStore) GetPlayerScore(name string) int {
@@ -79,7 +85,7 @@ func TestPOSTScore(t *testing.T) {
 		assertStatus(t, response.Code, http.StatusAccepted)
 
 		if len(store.winCalls) != 1 {
-			t.Errorf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
+			t.Fatalf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
 		}
 
 		if store.winCalls[0] != player {
@@ -97,6 +103,13 @@ func TestLeague(t *testing.T) {
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
+
+		var got []Player
+		err := json.NewDecoder(response.Body).Decode(&got)
+
+		if err != nil {
+			t.Fatalf("Unable to parse response from server '%s' into slice of Player, '%v'", response.Body, err)
+		}
 
 		assertStatus(t, response.Code, http.StatusOK)
 	})
