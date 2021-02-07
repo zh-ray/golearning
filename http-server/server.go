@@ -10,6 +10,11 @@ type PlayerStore interface {
 	RecordWin(name string)
 }
 
+type Player struct {
+	Name string
+	Wins int
+}
+
 type PlayerServer struct {
 	store PlayerStore
 	http.Handler
@@ -23,7 +28,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 	router := http.NewServeMux()
 
 	router.Handle("/league", http.HandlerFunc(p.leagueHandle))
-	router.Handle("/players", http.HandlerFunc(p.playersHandle))
+	router.Handle("/players/", http.HandlerFunc(p.playersHandle))
 
 	p.Handler = router
 

@@ -13,11 +13,6 @@ type StudPlayerStore struct {
 	winCalls []string
 }
 
-type Player struct {
-	Name string
-	Wins int
-}
-
 func (s *StudPlayerStore) GetPlayerScore(name string) int {
 	score := s.scores[name]
 	return score
